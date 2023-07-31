@@ -14,7 +14,6 @@ if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit -1
 fi
-IP_LIST_VALID=false
 SERVER_IP=$(curl ifconfig.me)
 DAYS=5475 # 15 years
 if [[ $IP_LIST =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+,?)+$ ]]; then
