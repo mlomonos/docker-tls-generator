@@ -1,12 +1,26 @@
 #!/usr/bin/env bash
 AGREE_ALL=$1
+IP_LIST=$2
+#IP list sepparated with coma (e.g. 1.1.1.1,2.2.2.2,3.3.3.3)
+
+# Try to swap params
+if [[ $IP_LIST == '-y' ]] || [[ ! $IP_LIST && $AGREE_ALL != '-y' ]]; then
+  TMP_VAR="$AGREE_ALL"
+  AGREE_ALL="$IP_LIST"
+  IP_LIST="$TMP_VAR"
+fi
+
 if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit -1
 fi
+IP_LIST_VALID=false
 SERVER_IP=$(curl ifconfig.me)
 DAYS=5475 # 15 years
-if [[ $SERVER_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+if [[ $IP_LIST =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+,?)+$ ]]; then
+  echo "Got IP List: $IP_LIST"
+  IP_LIST_VALID=true
+elif [[ $SERVER_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "Got IP: $SERVER_IP"
 else
   echo "Fail to get IP address from ifconfig.me, please try curl ifconfig.me"
@@ -54,8 +68,10 @@ fi
 # copy the CA certificate into /etc/docker/ssl
 cp ~/.docker/ca.pem /etc/docker/ssl
 
+
+
 # create OpenSSL configuration file for the Docker client ~/.docker/openssl.cnf
-echo "[req]
+OPEN_SSL_CONFIG_BASE="[req]
 req_extensions = v3_req
 distinguished_name = req_distinguished_name
 [req_distinguished_name]
@@ -65,9 +81,13 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth, clientAuth
 subjectAltName = @alt_names
 
-[alt_names]
-IP.1 = $SERVER_IP
-IP.2 = 127.0.0.1" > ~/.docker/openssl.cnf
+[alt_names]"
+if [[ ! $IP_LIST_VALID ]];then
+  IP_LIST=$SERVER_IP
+fi
+OPEN_SSL_CONFIG_IP_LIST=$(echo $IP_LIST | awk '{split($0, ips, ","); for(ip in ips){ printf "IP.%d = %s\\n", 1+c++, ips[ip]};};END{ printf "IP.%d = 127.0.0.1\\n", 1+c++ }'))
+
+echo "${OPEN_SSL_CONFIG_BASE}\n${OPEN_SSL_CONFIG_IP_LIST}" > ~/.docker/openssl.cnf
 
 # create and sign a certificate for the client
 openssl genrsa -out ~/.docker/key.pem 4096
