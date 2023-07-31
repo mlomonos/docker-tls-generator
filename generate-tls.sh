@@ -85,7 +85,7 @@ subjectAltName = @alt_names
 if [[ ! $IP_LIST_VALID ]];then
   IP_LIST=$SERVER_IP
 fi
-OPEN_SSL_CONFIG_IP_LIST=$(echo $IP_LIST | awk '{split($0, ips, ","); for(ip in ips){ printf "IP.%d = %s\\n", 1+c++, ips[ip]};};END{ printf "IP.%d = 127.0.0.1\\n", 1+c++ }'))
+OPEN_SSL_CONFIG_IP_LIST=$(echo $IP_LIST | awk '{split($0, ips, ","); for(ip in ips){ printf "IP.%d = %s\\n", 1+c++, ips[ip]};};END{ printf "IP.%d = 127.0.0.1\\n", 1+c++ }')
 
 echo -e "${OPEN_SSL_CONFIG_BASE}\n${OPEN_SSL_CONFIG_IP_LIST}" > ~/.docker/openssl.cnf
 
