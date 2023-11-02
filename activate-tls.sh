@@ -1,3 +1,6 @@
+mkdir -p /etc/docker/ssl
+mkdir -p ~/.docker
+
 if [ ! -f ~/.docker/ca-key.pem ]; then
     echo "File ca-key.pem not found!"
     exit 1;
@@ -34,20 +37,20 @@ if [ ! -f ~/.docker/openssl.cnf ]; then
 fi
 
 if [ ! -f /etc/docker/ssl/ca.pem   ]; then
-    echo "File ca.pem not found!"
-    exit 1;
+    echo "Copy ca.pem to /etc/docker/ssl"
+    cp ~/.docker/ca.pem /etc/docker/ssl
 fi
 if [ ! -f /etc/docker/ssl/server-cert.csr ]; then
-    echo "File server-cert.csr not found!"
-    exit 1;
+    echo "Copy server-cert.csr to /etc/docker/ssl"
+    cp ~/.docker/server-cert.csr /etc/docker/ssl
 fi
 if [ ! -f /etc/docker/ssl/server-cert.pem ]; then
-    echo "File server-cert.pem not found!"
-    exit 1;
+    echo "Copy server-cert.pem to /etc/docker/ssl"
+    cp ~/.docker/server-cert.pem /etc/docker/ssl
 fi
 if [ ! -f /etc/docker/ssl/server-key.pem ]; then
-    echo "File server-key.pem not found!"
-    exit 1;
+    echo "Copy server-key.pem to /etc/docker/ssl"
+    cp ~/.docker/server-key.pem /etc/docker/ssl
 fi
 
 # set up docker for use TLS certificate
