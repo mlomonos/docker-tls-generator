@@ -2,7 +2,11 @@
 
 IP_FROM=$1
 IP_TO=$2
-USER=$3 || "root"
+USER=$3
+
+if [[ ! $USER ]]; then
+    USER="root";
+fi
 
 echo "USER: $USER"
 echo "IPS: $IP_FROM > $IP_TO"
